@@ -27,14 +27,14 @@ public class LectureService {
                 .orElseThrow();
 
         if (lecture.isPossibleEnrolment()) {
-            lectureStudentRepository.save(new LectureStudent(lecture, studentId));
+            lectureStudentRepository.save(new LectureStudent(lectureId, studentId));
             lecture.decrease();
         }
     }
 
     @Transactional(readOnly = true)
     public int countLectureStudents(Long lectureId) {
-        Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
-        return lectureStudentRepository.countByLecture(lecture);
+        lectureRepository.findById(lectureId).orElseThrow();
+        return lectureStudentRepository.countByLectureId(lectureId);
     }
 }

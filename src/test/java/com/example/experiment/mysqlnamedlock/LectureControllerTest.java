@@ -15,6 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static io.restassured.http.ContentType.JSON;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -39,13 +43,37 @@ class LectureControllerTest {
     }
 
     @Test
-    void enrolment() {
+    void 싱글_스레드_수강_신청() {
         int maxLectureStudentNum = 10;
 
         Long lectureId = 강의등록(maxLectureStudentNum);
         for (int i = 0; i < 20; i++) {
             수강신청(lectureId);
         }
+        int lectureStudentNum = 강의_수강생_조회(lectureId);
+        Assertions.assertThat(maxLectureStudentNum).isEqualTo(lectureStudentNum);
+    }
+
+    @Test
+    void 다중_요청_수강_신청() throws InterruptedException {
+        int maxLectureStudentNum = 10;
+        Long lectureId = 강의등록(maxLectureStudentNum);
+
+        int studentsNum = 45;
+        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        CountDownLatch countDownLatch = new CountDownLatch(studentsNum);
+
+        for (int i = 0; i < studentsNum; i++) {
+            executorService.submit(() -> {
+                try {
+                    수강신청(lectureId);
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+
         int lectureStudentNum = 강의_수강생_조회(lectureId);
         Assertions.assertThat(maxLectureStudentNum).isEqualTo(lectureStudentNum);
     }
@@ -58,7 +86,6 @@ class LectureControllerTest {
                 .when()
                 .post("/lecture")
                 .then()
-//                .log().all()
                 .extract();
         ResponseBody body = extract.response().body();
         return body.as(Long.class);
@@ -66,13 +93,13 @@ class LectureControllerTest {
 
     private void 수강신청(Long lectureId) {
         RestAssured.given()
-                .log().all()
+//                .log().all()
                 .contentType(JSON)
                 .body(new LectureRequest(3L))
                 .when()
                 .post("/lecture/{lectureId}", lectureId)
                 .then()
-                .log().all()
+//                .log().all()
                 .extract();
     }
 
