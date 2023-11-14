@@ -2,7 +2,6 @@ package com.example.experiment.mysqlnamedlock.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,7 +11,6 @@ import java.sql.SQLException;
 
 @Slf4j
 @RequiredArgsConstructor
-@Repository
 public class LockRepository {
 
     private static final String GET_LOCK = "SELECT GET_LOCK(?, ?)";
@@ -26,6 +24,7 @@ public class LockRepository {
                                 Runnable runnable) {
 
         try (Connection connection = dataSource.getConnection()) {
+            log.info("lock datasource: {}", dataSource.toString());
             try {
                 getLock(connection, userLockName, timeoutSeconds);
                 log.info("getLock= {}, timeoutSeconds = {}, connection = {}, thread: {}", userLockName, timeoutSeconds, connection, Thread.currentThread().getName());

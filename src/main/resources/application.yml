@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    main:
+      jdbc-url: jdbc:mysql://localhost/experiment
+      username: root
+      password: root
+      maximum-pool-size: 30
+      max-lifetime: 60000
+      connection-timeout: 5000
+      pool-name: Spring-HikariPool
+    lock:
+      jdbc-url: jdbc:mysql://localhost/experiment
+      username: root
+      password: root
+      maximum-pool-size: 30
+      max-lifetime: 60000
+      connection-timeout: 5000
+      pool-name: Spring-HikariPool-lock
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+

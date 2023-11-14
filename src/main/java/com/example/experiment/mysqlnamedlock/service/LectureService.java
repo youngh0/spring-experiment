@@ -50,6 +50,7 @@ public class LectureService {
         ConnectionHolder connectionHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
         Connection connection = connectionHolder.getConnection();
         log.info("business Thread: {}, conn: {}", Thread.currentThread().getName(), connection);
+        log.info("main datasource: {}", dataSource.toString());
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow();
 
