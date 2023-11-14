@@ -1,5 +1,6 @@
 package com.example.experiment.mysqlnamedlock.service;
 
+import com.example.experiment.mysqlnamedlock.NamedLock;
 import com.example.experiment.mysqlnamedlock.domain.Lecture;
 import com.example.experiment.mysqlnamedlock.domain.LectureStudent;
 import com.example.experiment.mysqlnamedlock.repository.LectureRepository;
@@ -47,10 +48,22 @@ public class LectureService {
 
     @Transactional
     public void enrolmentWithNamedLock(Long lectureId, Long studentId) {
-        ConnectionHolder connectionHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
-        Connection connection = connectionHolder.getConnection();
-        log.info("business Thread: {}, conn: {}", Thread.currentThread().getName(), connection);
         log.info("main datasource: {}", dataSource.toString());
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow();
+
+        if (lecture.isPossibleEnrolment()) {
+            lectureStudentRepository.save(new LectureStudent(lectureId, studentId));
+            lecture.decrease();
+            return;
+        }
+
+        log.info("{} 수강신청 실패", Thread.currentThread().getName());
+    }
+
+    @NamedLock(lockKey = "lecture_enrolment")
+    @Transactional
+    public void enrolmentWithNamedLockAndAop(Long lectureId, Long studentId) {
         Lecture lecture = lectureRepository.findById(lectureId)
                 .orElseThrow();
 

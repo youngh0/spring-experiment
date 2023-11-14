@@ -26,9 +26,19 @@ public class DatasourceConfig {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
+    @ConfigurationProperties("spring.datasource.lock-with-aop")
+    @Bean
+    public DataSource lockWithAopDatasource() {
+        return DataSourceBuilder.create().type(HikariDataSource.class).build();
+    }
+
     @Bean
     public LockRepository lockRepository() {
         return new LockRepository(lockDatasource());
     }
 
+    @Bean
+    public NamedLockAop namedLockAop() {
+        return new NamedLockAop(lockWithAopDatasource());
+    }
 }

@@ -16,6 +16,14 @@ spring:
       max-lifetime: 60000
       connection-timeout: 5000
       pool-name: Spring-HikariPool-lock
+    lock-with-aop:
+      jdbc-url: jdbc:mysql://localhost/experiment
+      username: root
+      password: root
+      maximum-pool-size: 30
+      max-lifetime: 60000
+      connection-timeout: 5000
+      pool-name: Spring-HikariPool-lock-aop
 
   jpa:
     hibernate:

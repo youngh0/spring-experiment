@@ -30,6 +30,13 @@ public class LectureController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PostMapping("/lecture/namedLock/aop/{lectureId}")
+    public ResponseEntity<Void> enrolmentWithNamedLockAndAop(@PathVariable Long lectureId, @RequestBody LectureRequest lectureRequest) {
+        lectureService.enrolmentWithNamedLockAndAop(lectureId, lectureRequest.getStudentId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+
     @PostMapping("/lecture")
     public ResponseEntity<Long> create(@RequestBody LectureCreateRequest lectureCreateRequest) {
         Long savedId = lectureService.create(lectureCreateRequest.getNumber());

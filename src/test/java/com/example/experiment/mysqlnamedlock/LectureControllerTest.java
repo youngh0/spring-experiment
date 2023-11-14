@@ -6,7 +6,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static io.restassured.http.ContentType.JSON;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @ExtendWith(DataClearExtension.class)
@@ -51,7 +51,7 @@ class LectureControllerTest {
             수강신청(lectureId);
         }
         int lectureStudentNum = 강의_수강생_조회(lectureId);
-        Assertions.assertThat(lectureStudentNum).isEqualTo(maxLectureStudentNum);
+        assertThat(lectureStudentNum).isEqualTo(maxLectureStudentNum);
     }
 
     @Test
@@ -68,6 +68,7 @@ class LectureControllerTest {
                 try {
 //                    수강신청(lectureId);
                     락을_이용한_수강신청(lectureId);
+//                    락과_AOP를_이용한_수강신청(lectureId);
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -76,12 +77,11 @@ class LectureControllerTest {
         countDownLatch.await();
 
         int lectureStudentNum = 강의_수강생_조회(lectureId);
-        Assertions.assertThat(lectureStudentNum).isEqualTo(maxLectureStudentNum);
+        assertThat(lectureStudentNum).isEqualTo(maxLectureStudentNum);
     }
 
     private Long 강의등록(int number) {
         ExtractableResponse<Response> extract = RestAssured.given()
-//                .log().all()
                 .contentType(JSON)
                 .body(new LectureCreateRequest(number))
                 .when()
@@ -94,25 +94,31 @@ class LectureControllerTest {
 
     private void 수강신청(Long lectureId) {
         RestAssured.given()
-//                .log().all()
                 .contentType(JSON)
                 .body(new LectureRequest(3L))
                 .when()
                 .post("/lecture/{lectureId}", lectureId)
                 .then()
-//                .log().all()
                 .extract();
     }
 
     private void 락을_이용한_수강신청(Long lectureId) {
         RestAssured.given()
-//                .log().all()
                 .contentType(JSON)
                 .body(new LectureRequest(3L))
                 .when()
                 .post("/lecture/namedLock/{lectureId}", lectureId)
                 .then()
-//                .log().all()
+                .extract();
+    }
+
+    private void 락과_AOP를_이용한_수강신청(Long lectureId) {
+        RestAssured.given()
+                .contentType(JSON)
+                .body(new LectureRequest(3L))
+                .when()
+                .post("/lecture/namedLock/aop/{lectureId}", lectureId)
+                .then()
                 .extract();
     }
 
