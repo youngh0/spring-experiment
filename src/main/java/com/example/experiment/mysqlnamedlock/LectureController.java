@@ -1,5 +1,6 @@
 package com.example.experiment.mysqlnamedlock;
 
+import com.example.experiment.mysqlnamedlock.facade.FacadeLectureService;
 import com.example.experiment.mysqlnamedlock.service.LectureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,10 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class LectureController {
 
     private final LectureService lectureService;
+    private final FacadeLectureService facadeLectureService;
 
     @PostMapping("/lecture/{lectureId}")
     public ResponseEntity<Void> enrolment(@PathVariable Long lectureId, @RequestBody LectureRequest lectureRequest) {
         lectureService.enrolment(lectureId, lectureRequest.getStudentId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/lecture/namedLock/{lectureId}")
+    public ResponseEntity<Void> enrolmentWithNamedLock(@PathVariable Long lectureId, @RequestBody LectureRequest lectureRequest) {
+        facadeLectureService.enrolment(lectureId, lectureRequest.getStudentId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

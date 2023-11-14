@@ -47,11 +47,11 @@ class LectureControllerTest {
         int maxLectureStudentNum = 10;
 
         Long lectureId = 강의등록(maxLectureStudentNum);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 50; i++) {
             수강신청(lectureId);
         }
         int lectureStudentNum = 강의_수강생_조회(lectureId);
-        Assertions.assertThat(maxLectureStudentNum).isEqualTo(lectureStudentNum);
+        Assertions.assertThat(lectureStudentNum).isEqualTo(maxLectureStudentNum);
     }
 
     @Test
@@ -59,14 +59,15 @@ class LectureControllerTest {
         int maxLectureStudentNum = 10;
         Long lectureId = 강의등록(maxLectureStudentNum);
 
-        int studentsNum = 45;
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        int studentsNum = 50;
+        ExecutorService executorService = Executors.newFixedThreadPool(15);
         CountDownLatch countDownLatch = new CountDownLatch(studentsNum);
 
         for (int i = 0; i < studentsNum; i++) {
             executorService.submit(() -> {
                 try {
-                    수강신청(lectureId);
+//                    수강신청(lectureId);
+                    락을_이용한_수강신청(lectureId);
                 } finally {
                     countDownLatch.countDown();
                 }
@@ -75,7 +76,7 @@ class LectureControllerTest {
         countDownLatch.await();
 
         int lectureStudentNum = 강의_수강생_조회(lectureId);
-        Assertions.assertThat(maxLectureStudentNum).isEqualTo(lectureStudentNum);
+        Assertions.assertThat(lectureStudentNum).isEqualTo(maxLectureStudentNum);
     }
 
     private Long 강의등록(int number) {
@@ -98,6 +99,18 @@ class LectureControllerTest {
                 .body(new LectureRequest(3L))
                 .when()
                 .post("/lecture/{lectureId}", lectureId)
+                .then()
+//                .log().all()
+                .extract();
+    }
+
+    private void 락을_이용한_수강신청(Long lectureId) {
+        RestAssured.given()
+//                .log().all()
+                .contentType(JSON)
+                .body(new LectureRequest(3L))
+                .when()
+                .post("/lecture/namedLock/{lectureId}", lectureId)
                 .then()
 //                .log().all()
                 .extract();
