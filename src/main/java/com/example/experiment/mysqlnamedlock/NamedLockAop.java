@@ -5,12 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,12 +24,8 @@ public class NamedLockAop {
 
     private final DataSource dataSource;
 
-    @Around("@annotation(com.example.experiment.mysqlnamedlock.NamedLock)")
-    public void lock(ProceedingJoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
-        NamedLock namedLock = method.getAnnotation(NamedLock.class);
-
+    @Around("@annotation(namedLock)")
+    public void lock(ProceedingJoinPoint joinPoint, NamedLock namedLock) {
         String lockKey = namedLock.lockKey();
         int timeout = namedLock.timeout();
         log.info("lockKey: {}, timeout: {}", lockKey, timeout);
