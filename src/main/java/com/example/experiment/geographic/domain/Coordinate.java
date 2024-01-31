@@ -3,15 +3,17 @@ package com.example.experiment.geographic.domain;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.PrecisionModel;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 @NoArgsConstructor(access = PROTECTED)
+@Getter
 @Entity
 public class Coordinate {
 
@@ -28,7 +30,8 @@ public class Coordinate {
     }
 
     public static Coordinate of(double longitude, double latitude) {
-        com.vividsolutions.jts.geom.Coordinate coordinate = new com.vividsolutions.jts.geom.Coordinate(longitude,
+
+        org.locationtech.jts.geom.Coordinate coordinate = new org.locationtech.jts.geom.Coordinate(longitude,
                 latitude);
         Point point = geometryFactory.createPoint(coordinate);
         return new Coordinate(point);
